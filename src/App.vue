@@ -26,7 +26,17 @@
     </form>
 
     <div v-if="tab === 'browse'" class="complaints-list">
-      <div>Complaints from other people:</div>
+      <div class="email-signup">
+        <div v-if="hasSubmittedEmail">I now have your email</div>
+        <template v-else>
+          <div>
+            Advertisement: if you want me to send you my favorite complaints, give me your email.
+          </div>
+          <input v-model="email" type="email" placeholder="Your email" />
+          <button @click="handleEmailSubmit">Submit</button>
+        </template>
+      </div>
+      <div>Now, here are the complaints from other people:</div>
       <div v-for="c of complaints" :key="`complaint-${c.id}`">{{ c.content }}</div>
     </div>
   </div>
@@ -65,6 +75,14 @@
   gap: 10px;
 }
 
+.email-signup {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border: 1px solid black;
+  padding: 10px;
+}
+
 .complaints-list {
   display: flex;
   flex-direction: column;
@@ -92,11 +110,25 @@ import { onMounted, ref } from 'vue'
 const tab = ref('complain')
 const complaint = ref('')
 const complaints = ref<{ id: string; content: string; created_at: string }[]>([])
+const email = ref('')
+const hasSubmittedEmail = ref(false)
 
 async function handleSubmit() {
   await postComplaint()
   complaint.value = ''
   fetchComplaints()
+}
+
+async function handleEmailSubmit() {
+  await fetch('https://hash.spudlocker.com/random/email', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email: email.value }),
+  })
+  email.value = ''
+  hasSubmittedEmail.value = true
 }
 
 async function fetchComplaints() {
