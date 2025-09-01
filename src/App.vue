@@ -102,7 +102,9 @@
 
 .fire-button {
   cursor: pointer;
-  width: 60px;
+  width: fit-content;
+  height: 50px;
+  min-width: 50px;
   flex-shrink: 0;
 }
 
