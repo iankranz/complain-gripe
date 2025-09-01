@@ -124,7 +124,7 @@ button {
 </style>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onBeforeMount, onMounted, ref, watch } from 'vue'
 
 const tab = ref('complain')
 const complaint = ref('')
@@ -187,5 +187,13 @@ async function postComplaint() {
 
 onMounted(() => {
   fetchComplaints()
+})
+
+onBeforeMount(() => {
+  tab.value = localStorage.getItem('tab') || 'complain'
+})
+
+watch(tab, (newTab) => {
+  localStorage.setItem('tab', newTab)
 })
 </script>
