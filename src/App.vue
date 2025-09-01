@@ -106,6 +106,7 @@
   height: 50px;
   min-width: 50px;
   flex-shrink: 0;
+  font-size: 16px;
 }
 
 p {
