@@ -37,7 +37,10 @@
         </template>
       </div>
       <div>Now, here are the complaints from other people:</div>
-      <div v-for="c of complaints" :key="`complaint-${c.id}`">{{ c.content }}</div>
+      <div v-for="c of complaints" :key="`complaint-${c.id}`" class="complaint">
+        <button @click="handleFireClick(c.id)" class="fire-button">{{ c.likes }}🔥</button
+        >{{ c.content }}
+      </div>
     </div>
   </div>
 </template>
@@ -90,6 +93,19 @@
   gap: 20px;
 }
 
+.complaint {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  align-items: center;
+}
+
+.fire-button {
+  cursor: pointer;
+  width: 60px;
+  flex-shrink: 0;
+}
+
 p {
   margin: 0;
 }
@@ -109,7 +125,7 @@ import { onMounted, ref } from 'vue'
 
 const tab = ref('complain')
 const complaint = ref('')
-const complaints = ref<{ id: string; content: string; created_at: string }[]>([])
+const complaints = ref<{ id: string; content: string; created_at: string; likes: string }[]>([])
 const email = ref('')
 const hasSubmittedEmail = ref(false)
 
@@ -117,6 +133,19 @@ async function handleSubmit() {
   await postComplaint()
   complaint.value = ''
   fetchComplaints()
+}
+
+async function handleFireClick(complaintId: string) {
+  complaints.value = complaints.value.map((c) =>
+    c.id === complaintId ? { ...c, likes: `${parseInt(c.likes) + 1}` } : c,
+  )
+  fetch('https://hash.spudlocker.com/random/complaint/like', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ complaintId }),
+  })
 }
 
 async function handleEmailSubmit() {
@@ -133,7 +162,12 @@ async function handleEmailSubmit() {
 
 async function fetchComplaints() {
   const response = await fetch('https://hash.spudlocker.com/random/complaints')
-  const data = (await response.json()) as { id: string; content: string; created_at: string }[]
+  const data = (await response.json()) as {
+    id: string
+    content: string
+    created_at: string
+    likes: string
+  }[]
 
   complaints.value = data
 }
